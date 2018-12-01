@@ -10,8 +10,9 @@ def readmsj():
 			content = sock.recv(1024)
 			token = f.decrypt(content)
 			print(token.decode())
-		except Exception as e:
-			print(e)
+		except:
+			pass
+		
 if __name__ == '__main__':
 	if str(pv())[0] == "3":
 		raw_input = input
