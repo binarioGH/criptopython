@@ -1,11 +1,13 @@
-'''#-*-coding: utf-8-*-
+#-*-coding: utf-8-*-
 from cryptography.fernet import Fernet
 from sys import argv
+from random import randint
 
 def cifrararchivo(file, clave):
-	with open(file, "read"):
-
-
+	with open(file, "r") as f2c:
+		with open("file-{}.{}".format(randint(0, 1000),file[len(file)-3:]), "w") as cf:
+			for line in f2c.readlines():
+				cf.write(c.encrypt(line.encode()).decode())		
 if __name__ == '__main__':
 
 	key = ""
@@ -27,6 +29,4 @@ if __name__ == '__main__':
 		key = Fernet.generate_key()
 
 	c = Fernet(key)
-	cifrararchivo(file, clave)
-
-'''
+	cifrararchivo(file, key)
