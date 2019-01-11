@@ -3,10 +3,11 @@ from lib import pyperclip
 from sys import argv
 from platform import python_version as pv
 def main():
-	if len(argv) <= 2:
-		mykey = 8
-	else:
-		mykey = argv[1]
+	try:
+		mykey = argv[2]
+	except IndexError:
+		mykey = 4
+
 	if pv()[0] == "3":
 		raw_input = input
 	mytext = raw_input("Input your text here: ")
