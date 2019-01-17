@@ -1,74 +1,96 @@
 #-*-coding: utf-8-*-
 from socket import *
-from threading import *
+from optparse import OptionParser as op 
+from cryptography.fernet import Fernet as fern 
+from sys import argv
+from threading import Thread
 from platform import python_version as pv
-from platform import platform
-from os import system, chdir, getcwd
-class Server():
-	def __init__(self):
-		self.users = []
-		cmd = ""
-		if str(pv())[0] == "3":
-			raw_input = input
-		if str(platform())[0] == "W":
-			clear = "cls"
-		else:
-			clear = "clear"
-		self.accept_connections = True
-		self.send2all = True
+from platform import platform as p
+from os import system
+
+class Server:
+	def start(self, ip, port, key, listen):
+		self.f = fern(key)
+		self.l = listen
 		self.sock = socket(AF_INET, SOCK_STREAM)
-		self.sock.bind(("0.0.0.0", 5000))
-		self.sock.listen(4)
-		self.sock.setblocking(False)
-		esperar = Thread(target=self.connect)
-		esperar.daemon = True
-		esperar.start()
-		escuchar = Thread(target=self.hearall)
-		escuchar.daemon = True
-		escuchar.start()
-		while cmd != "exit":
-			try:
-				cmd = raw_input("{}-->".format(getcwd(	)))
-				if cmd[:2] == "cd":
-					chdir(cmd[3:])
-				elif cmd == clear:
-					system(clear)
-				elif cmd[:4] == "stop":
-					if cmd[5:] == "connect":
-						self.accept_connections = False
-					elif cmd[5:] == "hearall":
-						self.send2all = False
-				else:
-					print("Comando no reconocido.")
-			except Exception as e:
-				print(e)
-		self.sock.shutdown(SHUT_RDWR)
-		self.sock.close()
-	def connect(self):
-		while self.accept_connections:
-			try:
-				conn = self.sock.accept()[0]
-				conn.setblocking(False)
-			except:
-				pass
-	def hearall(self):
-		while self.send2all:
-			try:
-				for ip in self.users:
-					recv = ip.recv(1024)
-					if recv:
-						self.sendall(recv, ip)
-			except:
-				pass
-	def sendall(self, msg, sndr):
-		for ip in self.users:
-			if ip == sndr:
-				continue
-			else:
+		self.sock.bind((ip, port))
+		self.sock.settimeout(0.0)
+		self.sock.listen(self.l)
+		self.serverstuff = {"wait": True, "printaddr": True, "hear":True}
+		self.conns = {}
+		self.clientnum = 1
+	def wait4all(self):
+		while self.serverstuff["wait"]:
+			while self.l <= len(self.conns):
+				if not self.serverstuff["wait"]:
+					break
 				try:
-					ip.send(msg)
+					conn, addr = self.sock.accept()
+					self.conns["Client-{}".format(self.clientnum)] = conn
+					if self.serverstuff["printaddr"]:
+						print("{}\nNew connection.\nIP: {}\nPORT: {}\n".format("-"*80,addr[0], addr[1],"-"*80))
+				except BlockingIOError:
+					pass
+				except Exception as e:
+					print("Error : {}".format(e))
+				else:
+					self.clientnum += 1
+
+	def hear2all(self):
+		while self.serverstuff["hear"]:
+			for c in self.conns:
+				try:
+					msj = self.conns[c].recv(1024)
+					if self.serverstuff["send"]:
+						self.sendtoall(msj, c)
 				except:
-					print("{} se ha desconectado.".format(ip))
-					self.users.remove(ip)
+					pass
+	def send2all(m, c):
+		for client in self.conns:
+			if client == c:
+				continue
+			try:
+				self.conns[client].send(m)
+			except:
+				del self.conns[client]
+	def shutdown(self):
+		for c in self.conns:
+			self.conns[c].shutdown(SHUT_WR)
+			self.conns[c].close()
+		for stuff in self.serverstuff:
+			self.serverstuff[stuff] = False
+		self.sock.close()
+
+def main():
+	opt = op("Usage: %prog [arg] [value]")
+	opt.add_option("-H","--host",dest="host",default="127.0.0.1", help="Set server's ip")
+	opt.add_option("-p", "--port", dest="port", default=5000, help="Set server's port", type="int")
+	opt.add_option("-k", "--key", dest="key", default="YxqChramWzhDUQiNoAnNseAYTblCjapnL8aQu3ehofQ=", help="Set key", type="string")
+	opt.add_option("-l", "--listen", dest="l", default=2, help="Set how many clients can be connected at the same time", type="int")
+	(o, argv) = opt.parse_args()
+	s = Server()
+	s.start(o.host, o.port, o.key, o.l)
+	w = Thread(target=s.wait4all)
+	w.daemon = True
+	w.start()
+	h = Thread(target=s.hear2all)
+	h.daemon = True
+	h.start()
+	if pv()[0] == "3":
+		raw_input = input
+	if p()[0] == "W":
+		clear = "cls"
+	else:
+		clear = "clear"
+	costumclear = clear
+	cmd = ""
+	while cmd != "exit":
+		cmd = raw_input(">>>")
+		if cmd == costumclear:
+			system(clear)
+
+
+
+
 if __name__ == '__main__':
-	main = Server()
+	main()

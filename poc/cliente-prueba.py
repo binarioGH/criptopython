@@ -8,7 +8,7 @@ def hearing():
 		print(recv)
 if __name__ == '__main__':
 	sock = socket(AF_INET, SOCK_STREAM)
-	sock.connect(("192.168.2.177", 5111))
+	sock.connect(("127.0.0.1", 5000))
 	h = Thread(target=hearing)
 	h.daemon = True
 	h.start()
