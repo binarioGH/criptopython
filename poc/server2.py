@@ -9,6 +9,8 @@ from platform import platform as p
 from os import system
 
 class Server:
+	def __init__(self):
+		pass
 	def start(self, ip, port, key, listen):
 		self.f = fern(key)
 		self.l = listen
@@ -16,7 +18,7 @@ class Server:
 		self.sock.bind((ip, port))
 		self.sock.settimeout(0.0)
 		self.sock.listen(self.l)
-		self.serverstuff = {"wait": True, "printaddr": True, "hear":True}
+		self.serverstuff = {"wait": True, "hear":True, "send": True}
 		self.conns = {}
 		self.clientnum = 1
 	def wait4all(self):
@@ -27,8 +29,8 @@ class Server:
 				try:
 					conn, addr = self.sock.accept()
 					self.conns["Client-{}".format(self.clientnum)] = conn
-					if self.serverstuff["printaddr"]:
-						print("{}\nNew connection.\nIP: {}\nPORT: {}\n".format("-"*80,addr[0], addr[1],"-"*80))
+	
+					print("{}\nNew connection.\nIP: {}\nPORT: {}\n".format("-"*80,addr[0], addr[1],"-"*80))
 				except BlockingIOError:
 					pass
 				except Exception as e:
@@ -68,6 +70,7 @@ def main():
 	opt.add_option("-k", "--key", dest="key", default="YxqChramWzhDUQiNoAnNseAYTblCjapnL8aQu3ehofQ=", help="Set key", type="string")
 	opt.add_option("-l", "--listen", dest="l", default=2, help="Set how many clients can be connected at the same time", type="int")
 	(o, argv) = opt.parse_args()
+	o.key = o.key.encode()
 	s = Server()
 	s.start(o.host, o.port, o.key, o.l)
 	w = Thread(target=s.wait4all)
