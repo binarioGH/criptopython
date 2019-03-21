@@ -3,7 +3,6 @@ function translate(key, text, doe){
 	var bannedChars="<>%"
 	var char = "";
 	var translatedText = "";
-	key %= abc.lenght;
 	var letterIndex = 0;
 	for(var index=0;index<text.length;index++){
 		char = text[index]; 
@@ -23,18 +22,22 @@ function translate(key, text, doe){
 		else{
 			if(doe == "e"){
 				letterIndex -= key;
+				console.log("e: " + letterIndex);
 			}
 			else{
 				letterIndex += key;
+				console.log("d: " + letterIndex);
 			}
 			if(letterIndex<0){
 				letterIndex += abc.length;
+				console.log("sum: " +letterIndex);
 			}
 			if(letterIndex>= abc.length){
-				letterIndex%=abc.length;
+				letterIndex-=abc.length;
+				console.log("mod: " + letterIndex);
 			}
 			translatedText += abc[letterIndex];
-			console.log(letterIndex);
+			console.log("Final: "+letterIndex);
 		}
 	}
 	return translatedText;
@@ -55,5 +58,16 @@ encrypt.addEventListener("click", function(){
 	}
 	else{
 		translated.innerHTML = translate(k, t, "e");
+	}
+});
+decrypt.addEventListener("click", function(){
+	k = parseInt(key.value);
+	t = text.value;
+	if(isNaN(k) || t == ""){
+		alert("Debes de ingresar valores en todos los campos"); 
+		return 0;	
+	}
+	else{
+		translated.innerHTML = translate(k, t, "d");
 	}
 });
