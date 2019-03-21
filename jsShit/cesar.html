@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Cesar Cipher</title>
+	<link rel="stylesheet" type="text/css" href="cesar.css">
+</head>
+<body>
+	<header>
+		<h1 class="title">Cifrado Cesar</h1>
+	</header>
+	<section>
+		<article class="Artbox" id="ins">
+			<h2 class="title">Introduce los valores</h2>
+			<div class="inputbox">
+				
+				<text class="label">
+					<p>LLave: </p>
+				</text>
+				<input id="key" type="text" class="values">
+			</div>
+			<div class="inputbox">
+				<text class="label">
+					<p>Texto: </p>
+				</text>
+				<input id="text" type="text" class="values">
+			</div>
+			<div id="buttons">
+			    <input class="doSomeShit" id="encrypt" type="button" value="encrypt">
+			    <input class="doSomeShit" id="decrypt" type="button" value="decrypt">
+		    </div>
+		</article>
+		<article id="textArtBox">
+			<h2 class="title" id="alrt">Tu resultado estará aquí abajo.</h2>
+			<text>
+				<p id="translated"></p>
+			</text>
+		</article>
+	</section>
+	<footer>
+		<text>
+			<p>Esta cosa es porque ocupo practicar js</p>
+		</text>
+	</footer>
+	<script type="text/javascript" src="cesar.js"></script>
+
+</body>
+</html>
